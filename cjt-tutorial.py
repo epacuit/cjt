@@ -185,7 +185,11 @@ def generate_competences(n, mu=0.51, sigma=0.2):
     return competences
 
 
-st.subheader("Simulation")
+st.subheader("Competence")
+
+"""
+The assumption that the experts' competence is greater than 0.5 can be weakened.  Select the maximum number of  experts, an average competenece for the experts and the standard deviation of the competences.   Then, the graph shows the probability that the majority is correct compared to a the expert rule (randomly selecting an expert that selects an outcome) for different numbers of agents (up to the maximum number of experts). 
+"""
 st.write("")
 col1, col2 = st.columns(2)
 P=True
@@ -242,3 +246,85 @@ df = pd.DataFrame(data_for_df)
 fig = px.line(df, x="Number of Experts", y="Probability correct", color="Rule") 
 fig.update_layout(yaxis_range=[0,1])
 st.plotly_chart(fig, use_container_width=True)
+
+st.subheader("Independence")
+"""
+The following example illustrates the importance of the assumption that the voters opinions are **independent**. 
+
+Suppose that there are 3 experts $V=\{1,2,3\}$.  Consider a probability over the joint space specifying the votes of each expert.   The outcomes are the 8 possible voting scenarios 
+
+1. $\mathbf{v}_1=1, \mathbf{v}_2=1, \mathbf{v}_3=1$
+2. $\mathbf{v}_1=1, \mathbf{v}_2=1, \mathbf{v}_3=0$
+3. $\mathbf{v}_1=1, \mathbf{v}_2=0, \mathbf{v}_3=1$
+4. $\mathbf{v}_1=1, \mathbf{v}_2=0, \mathbf{v}_3=0$
+5. $\mathbf{v}_1=0, \mathbf{v}_2=1, \mathbf{v}_3=1$
+6. $\mathbf{v}_1=0, \mathbf{v}_2=1, \mathbf{v}_3=0$
+7. $\mathbf{v}_1=0, \mathbf{v}_2=0, \mathbf{v}_3=1$
+8. $\mathbf{v}_1=0, \mathbf{v}_2=0, \mathbf{v}_3=0$
+
+Suppose that that correct outcome is 1.   Let $p_i$ be the probability of voting situation $i$.  So, for instance, $p_4=0.25$ means that there is a probability of $0.25$ that expert 1 votes $1$, expert 2 votes $0$ and expert 3 votes $0$.  Then, given a probability over the 8 possible voting situations (a sequence of 8 numbers $(p_1,\ldots, p_i)$ that are nonnegative and sum to 1), we have the following: 
+
+* the probability that expert 1 votes correctly is $p_1+p_2+p_3+p_4$.
+* the probability that expert 2 votes correctly is $p_1+p_2+p_4+p_5$.
+* the probability that expert 3 votes correctly is $p_1+p_3+p_5+p_7$.
+* the probability that a majority is correct is $p_1 + p_2 + p_3 + p_5$
+
+The graph below shows the probability that the majority is correct compared to the expert rule (the probability that a randomly selected expert is correct) for randomly generated probabilities over the 8 possible voting situations.  
+
+The experts are independent if the product of the probability that expert 1 is correct,  the probability that expert 2 is correct and the probability that expert 3 is correct equals $p_1$. I.e., the voters are indpendent when $(p_1+p_2+p_3+p_4)*(p_1+p_2+p_4+p_5)*(p_1+p_3+p_5+p_7) = p_1$.  Note that it is very unlikely that the experts votes will be independent. 
+"""
+
+def gen_options_probability_dirichlet(params, num=100):
+    return np.random.dirichlet(params, num)
+
+def gen_data(n): 
+    prs = gen_options_probability_dirichlet((1,1,1,1,1,1,1,1), num=n)
+    maj_preferred_expert = 0
+    data_for_df= {"N": list(), "Probability correct":list(), "Rule": list()}
+    num_independent = 0
+    for pr_idx,pr in enumerate(list(prs)): 
+        pr1 = pr[0] + pr[1] + pr[2] + pr[3]
+        pr2 = pr[0] + pr[1] + pr[4] + pr[5]
+        pr3 = pr[0] + pr[2] + pr[4] + pr[6]
+        
+        num_independent += int((pr1 * pr2 * pr3) == pr1)
+        
+        maj_pr_correct = pr[0] + pr[1] + pr[2] + pr[4]
+        data_for_df["N"].append(f"{pr_idx}")
+        data_for_df["Probability correct"].append(maj_pr_correct)
+        data_for_df["Rule"].append("Majority")
+        expert_pr_correct = np.average([pr1, pr2, pr3])
+        data_for_df["N"].append(f"{pr_idx}")
+        data_for_df["Probability correct"].append(expert_pr_correct)
+        data_for_df["Rule"].append("Expert")
+
+    return data_for_df, num_independent
+
+num_prs = st.slider("Number of probabilities", min_value=5, max_value=200, value=100, step=1)
+
+data_for_df, num_independent = gen_data(num_prs)
+st.write(f"In the following graph, the number of probabilities in which the experts are indpendent is {num_independent}.")
+df = pd.DataFrame(data_for_df)
+fig = px.line(df, x="N", y="Probability correct", color="Rule") 
+fig.update_layout(yaxis_range=[0,1])
+st.plotly_chart(fig, use_container_width=True)
+
+st.subheader("Further Reading")
+
+## Further Reading 
+"""
+D. Austen-Smith and J. Banks, Aggregation, Rationality and the Condorcet Jury Theorem, The American Political Science Review, 90, 1, pgs. 34 - 45, 1996
+ 
+F. Dietrich, The premises of Condorcet's Jury Theorem are not simultaneously justified, Episteme, Episteme - a Journal of Social Epistemology 5(1): 56-73, 2008
+
+F. Dietrich and K. Spiekermann (2020). [Jury Theorems: a review](http://www.franzdietrich.net/Papers/DietrichSpiekermann-JuryTheorems.pdf),  In: M. Fricker et al. (eds.) The Routledge Handbook of Social Epistemology. New York and Abingdon: Routledge
+
+D. Estlund, Opinion Leaders, Independence and Condorcet's Jury Theorem, Theory and Decision, 36, pgs. 131 - 162, 1994
+
+R. Goodin and K. Spiekermann, *An Epistemic Theory of Democracy*, Oxford University Press, 2018
+
+U. Hahn, M. von Sydow and C. Merdes (2018). [How Communication Can Make Voters Choose Less Well](https://onlinelibrary.wiley.com/doi/epdf/10.1111/tops.12401), Topics in Cognitive Science
+
+C. List and R. Goodin. Epistemic democracy: Generalizing the Condorcet Jury Theorem. Journal of Political Philosophy, 9(3):277–306, 2001.
+
+"""
