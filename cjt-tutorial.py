@@ -38,16 +38,16 @@ st.latex(r'\sum_{h=m}^n \frac{n!}{h!(n-h)!} * p^h*(1-p)^{n-h}')
 """
 
 * $\\frac{n!}{h!(n-h)!}$ is the number of ways to choose $h$ experts out of $n$
-* $p^h*(1-p)^{n-h}$ is the probability that $h$ voters are correct and $n-h$ voters are incorrect. 
+* $p^h*(1-p)^{n-h}$ is the probability that $h$ experts are correct and $n-h$ experts are incorrect. 
 
-An important assumption needed to justify the above formula is that the event that any expert is correct is **independent** of any other voter being correct. 
+An important assumption needed to justify the above formula is that the event that any expert is correct is **independent** of any other expert being correct. 
 
-For example, suppose that $V=\{1,2,3\}$ and for each $i\in V$, $Pr(R_i)=\\frac{2}{3}$. Then the probability that at least two voters are correct is the sum of the following: 
+For example, suppose that $V=\{1,2,3\}$ and for each $i\in V$, $Pr(R_i)=\\frac{2}{3}$. Then the probability that at least two experts are correct is the sum of the following: 
 
-* The probability that voters 1 and 2 are correct and 3 is incorrect is: $\\frac{2}{3} * \\frac{2}{3} * \\frac{1}{3}$
-* The probability that voters 2 and 3 are correct and 1 is incorrect is: $\\frac{1}{3} * \\frac{2}{3} * \\frac{2}{3}$
-* The probability that voters 1 and 3 are correct and 2 is incorrect is: $\\frac{2}{3} * \\frac{1}{3} * \\frac{2}{3}$
-* The probability that voters 1, 2 and 3 are correct is: $\\frac{2}{3} * \\frac{2}{3} * \\frac{2}{3}$
+* The probability that experts 1 and 2 are correct and 3 is incorrect is: $\\frac{2}{3} * \\frac{2}{3} * \\frac{1}{3}$
+* The probability that experts 2 and 3 are correct and 1 is incorrect is: $\\frac{1}{3} * \\frac{2}{3} * \\frac{2}{3}$
+* The probability that experts 1 and 3 are correct and 2 is incorrect is: $\\frac{2}{3} * \\frac{1}{3} * \\frac{2}{3}$
+* The probability that experts 1, 2 and 3 are correct is: $\\frac{2}{3} * \\frac{2}{3} * \\frac{2}{3}$
 
 That is, the probability that at least 2 experts are correct is:
 $3 * \\frac{2}{3} * \\frac{2}{3} * \\frac{1}{3} + \\frac{2}{3}  * \\frac{2}{3}  * \\frac{2}{3}$.
@@ -91,7 +91,7 @@ st.subheader("The Theorem")
 """
 **Independence**: The correctness events $R_1, R_2, \ldots, R_n$ are independent.
 
-**Competence**: The experts' competenences $Pr(R_i)$  (i) exceeds $\\frac{1}{2}$ and (ii) is the same for each voter $i$.
+**Competence**: The experts' competences $Pr(R_i)$  (i) exceeds $\\frac{1}{2}$ and (ii) is the same for each expert $i$.
 
 **Condorcet Jury Theorem**. Assume Independence and Competence.  Then, as the group size increases, the probability of that the majority is correct (i) increases (growing reliability), and (ii) tends to one (infallibility).
 
@@ -144,7 +144,7 @@ with col2:
         st.warning(f"The probability that the majority rule is correct is **{round(maj_prob,4)}**.")
         st.info(f"The probability that the expert rule is correct is **{round(expert_prob,4)}**.")
 st.write("")
-st.write("**Theorem**.  For any (odd) number of voters, each with a competence of $1 > p>1/2$, then the  majority rule is a greater probability of being correct than the expert rule. ")
+st.write("**Theorem**.  For any (odd) number of experts, each with a competence of $1 > p>1/2$, then the  majority rule is a greater probability of being correct than the expert rule. ")
 
 st.write("**Theorem**.  Assume that $p_1\ge p_2>p_3>1/2$, then the  majority rule is a greater probability of being correct than the expert rule. ")
 
@@ -249,7 +249,7 @@ st.plotly_chart(fig, use_container_width=True)
 
 st.subheader("Independence")
 """
-The following example illustrates the importance of the assumption that the voters opinions are **independent**. 
+The following example illustrates the importance of the assumption that the experts opinions are **independent**. 
 
 Suppose that there are 3 experts $V=\{1,2,3\}$.  Consider a probability over the joint space specifying the votes of each expert.   The outcomes are the 8 possible voting scenarios 
 
@@ -271,7 +271,7 @@ Suppose that that correct outcome is 1.   Let $p_i$ be the probability of voting
 
 The graph below shows the probability that the majority is correct compared to the expert rule (the probability that a randomly selected expert is correct) for randomly generated probabilities over the 8 possible voting situations.  
 
-The experts are independent if the product of the probability that expert 1 is correct,  the probability that expert 2 is correct and the probability that expert 3 is correct equals $p_1$. I.e., the voters are indpendent when $(p_1+p_2+p_3+p_4)*(p_1+p_2+p_4+p_5)*(p_1+p_3+p_5+p_7) = p_1$.  Note that it is very unlikely that the experts votes will be independent. 
+The experts are independent if the product of the probability that expert 1 is correct,  the probability that expert 2 is correct and the probability that expert 3 is correct equals $p_1$. I.e., the experts are indpendent when $(p_1+p_2+p_3+p_4)*(p_1+p_2+p_4+p_5)*(p_1+p_3+p_5+p_7) = p_1$.  Note that it is very unlikely that the experts votes will be independent. 
 """
 
 def gen_options_probability_dirichlet(params, num=100):
